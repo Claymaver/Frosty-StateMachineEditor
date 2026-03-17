@@ -63,21 +63,27 @@
     </PackageReference>
   </ItemGroup>
 
+  <!-- Frosty SDK references: use lib/ (CI) with fallback to local install (dev) -->
   <ItemGroup>
     <Reference Include="FrostyControls">
-      <HintPath>..\..\..\Modding\FrostyEditor\FrostyControls.dll</HintPath>
+      <HintPath>lib\FrostyControls.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="FrostyCore">
-      <HintPath>..\..\..\Modding\FrostyEditor\FrostyCore.dll</HintPath>
+      <HintPath>lib\FrostyCore.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="FrostyEditor">
-      <HintPath>..\..\..\Modding\FrostyEditor\FrostyEditor.exe</HintPath>
+      <HintPath>lib\FrostyEditor.exe</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="FrostyHash">
-      <HintPath>..\..\..\Modding\FrostyEditor\FrostyHash.dll</HintPath>
+      <HintPath>lib\FrostyHash.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="FrostySdk">
-      <HintPath>..\..\..\Modding\FrostyEditor\FrostySdk.dll</HintPath>
+      <HintPath>lib\FrostySdk.dll</HintPath>
+      <Private>false</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore" />

@@ -3,10 +3,14 @@ obj/
 *.user
 *.suo
 *.cache
-*.dll
 *.pdb
-*.exe
 .vs/
 packages/
 DefaultSoldierStateMachine.xml
 /.claude
+
+# Ignore compiled output everywhere except lib/ (needed for CI)
+*.dll
+*.exe
+!lib/*.dll
+!lib/*.exe

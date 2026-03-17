@@ -228,6 +228,32 @@ namespace StateMachineEditorPlugin
         // Node layout persistence: keyed by "assetName|controllerName|nodeName"
         private readonly Dictionary<string, Point> _savedPositions = new Dictionary<string, Point>();
         private string _savedLayoutKey => _doc?.Name + "|" + (_activeController?.Name ?? "");
+        // ── Frosty-consistent color palette ──────────────────────────────────────
+        // Backgrounds
+        static readonly SolidColorBrush BrushWindowBg     = new SolidColorBrush(Color.FromRgb(0x14, 0x14, 0x14)); // #141414
+        static readonly SolidColorBrush BrushPanelBg      = new SolidColorBrush(Color.FromRgb(0x29, 0x29, 0x29)); // #292929
+        static readonly SolidColorBrush BrushInputBg      = new SolidColorBrush(Color.FromRgb(0x29, 0x29, 0x29)); // #292929
+        static readonly SolidColorBrush BrushCardBg       = new SolidColorBrush(Color.FromRgb(0x29, 0x29, 0x29)); // #292929
+        static readonly SolidColorBrush BrushGroupHeaderBg= new SolidColorBrush(Color.FromRgb(0x30, 0x30, 0x30)); // #303030
+        // Borders
+        static readonly SolidColorBrush BrushBorder       = new SolidColorBrush(Color.FromRgb(0x3F, 0x3F, 0x3F)); // #3F3F3F
+        static readonly SolidColorBrush BrushDivider      = new SolidColorBrush(Color.FromRgb(0x33, 0x33, 0x33)); // #333333
+        // Controls / Buttons
+        static readonly SolidColorBrush BrushControl      = new SolidColorBrush(Color.FromRgb(0x45, 0x45, 0x45)); // #454545
+        static readonly SolidColorBrush BrushControlHover = new SolidColorBrush(Color.FromRgb(0x70, 0x70, 0x70)); // #707070
+        static readonly SolidColorBrush BrushControlPress = new SolidColorBrush(Color.FromRgb(0x58, 0x58, 0x58)); // #585858
+        // Text
+        static readonly SolidColorBrush BrushText         = new SolidColorBrush(Color.FromRgb(0xF8, 0xF8, 0xF8)); // #F8F8F8
+        static readonly SolidColorBrush BrushTextDim      = new SolidColorBrush(Color.FromRgb(0x86, 0x86, 0x86)); // #868686
+        static readonly SolidColorBrush BrushTextMuted    = new SolidColorBrush(Color.FromRgb(0xDA, 0xDA, 0xDA)); // #DADADA
+        // Semantic
+        static readonly SolidColorBrush BrushPositive     = new SolidColorBrush(Color.FromRgb(0x20, 0x80, 0x20)); // #208020
+        static readonly SolidColorBrush BrushNegative     = new SolidColorBrush(Color.FromRgb(0x80, 0x20, 0x20)); // #802020
+        static readonly SolidColorBrush BrushInfo         = new SolidColorBrush(Color.FromRgb(0x00, 0x50, 0x80)); // #005080
+        // Selection / accent (subdued — no bright blue)
+        static readonly SolidColorBrush BrushAccent       = new SolidColorBrush(Color.FromRgb(0x6C, 0x6C, 0x6C)); // #6C6C6C
+        static readonly SolidColorBrush BrushSelected     = new SolidColorBrush(Color.FromRgb(0x58, 0x58, 0x58)); // #585858
+
         // View toggle (Graph ↔ EBX Properties)
         private Frosty.Core.Controls.FrostyPropertyGrid _propertyGrid;
         private UIElement                  _graphView;
@@ -328,8 +354,8 @@ namespace StateMachineEditorPlugin
                     // Create rubber-band rectangle
                     _boxRect = new Border
                     {
-                        Background      = new SolidColorBrush(Color.FromArgb(30, 0, 122, 204)),
-                        BorderBrush     = new SolidColorBrush(Color.FromRgb(0, 122, 204)),
+                        Background      = new SolidColorBrush(Color.FromArgb(30, 0x45, 0x45, 0x45)),
+                        BorderBrush     = BrushControl,
                         BorderThickness = new Thickness(1),
                         IsHitTestVisible = false
                     };
@@ -573,10 +599,10 @@ namespace StateMachineEditorPlugin
             if (_searchBox != null)
             {
                 // Watermark placeholder
-                _searchBox.GotFocus  += (s, e) => { if (_searchBox.Tag as string == "placeholder") { _searchBox.Text = ""; _searchBox.Foreground = new SolidColorBrush(Color.FromRgb(212, 212, 212)); _searchBox.Tag = null; } };
-                _searchBox.LostFocus += (s, e) => { if (string.IsNullOrEmpty(_searchBox.Text)) { _searchBox.Text = "Search..."; _searchBox.Foreground = new SolidColorBrush(Color.FromRgb(133, 133, 133)); _searchBox.Tag = "placeholder"; } };
+                _searchBox.GotFocus  += (s, e) => { if (_searchBox.Tag as string == "placeholder") { _searchBox.Text = ""; _searchBox.Foreground = BrushText; _searchBox.Tag = null; } };
+                _searchBox.LostFocus += (s, e) => { if (string.IsNullOrEmpty(_searchBox.Text)) { _searchBox.Text = "Search..."; _searchBox.Foreground = BrushTextDim; _searchBox.Tag = "placeholder"; } };
                 _searchBox.Text = "Search...";
-                _searchBox.Foreground = new SolidColorBrush(Color.FromRgb(133, 133, 133));
+                _searchBox.Foreground = BrushTextDim;
                 _searchBox.Tag = "placeholder";
                 _searchBox.TextChanged += (s, e) =>
                 {
@@ -1075,8 +1101,8 @@ namespace StateMachineEditorPlugin
                 {
                     Title = "Select Template SeqFLOW", Width = 420, Height = 480,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                    Background = new SolidColorBrush(Color.FromRgb(37, 37, 38)),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(63, 63, 70)),
+                    Background = BrushPanelBg,
+                    BorderBrush = BrushBorder,
                     BorderThickness = new Thickness(1), ResizeMode = ResizeMode.CanResize, ShowInTaskbar = false
                 };
                 var root = new Grid();
@@ -1084,25 +1110,25 @@ namespace StateMachineEditorPlugin
                 root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
                 root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
 
-                var hint = new TextBlock { Text = "Pick a SeqFLOW to use as conduit template:", Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 180)), FontSize = 11, Margin = new Thickness(8, 6, 8, 4) };
+                var hint = new TextBlock { Text = "Pick a SeqFLOW to use as conduit template:", Foreground = BrushTextDim, FontSize = 11, Margin = new Thickness(8, 6, 8, 4) };
                 Grid.SetRow(hint, 0); root.Children.Add(hint);
 
                 var listBox = new ListBox
                 {
-                    Background = new SolidColorBrush(Color.FromRgb(37, 37, 38)),
+                    Background = BrushPanelBg,
                     BorderThickness = new Thickness(0),
-                    Foreground = new SolidColorBrush(Color.FromRgb(212, 212, 212)),
+                    Foreground = BrushText,
                     FontSize = 11
                 };
                 Grid.SetRow(listBox, 1); root.Children.Add(listBox);
 
                 var bottomPanel = new DockPanel { Margin = new Thickness(8, 4, 8, 8) };
-                var status = new TextBlock { Foreground = new SolidColorBrush(Color.FromRgb(133, 133, 133)), FontSize = 10, VerticalAlignment = VerticalAlignment.Center };
+                var status = new TextBlock { Foreground = BrushTextDim, FontSize = 10, VerticalAlignment = VerticalAlignment.Center };
                 DockPanel.SetDock(status, Dock.Left);
                 var okBtn = new Button
                 {
                     Content = "Select", Width = 70, HorizontalAlignment = HorizontalAlignment.Right,
-                    Background = new SolidColorBrush(Color.FromRgb(0, 122, 204)),
+                    Background = BrushControl,
                     Foreground = Brushes.White, Padding = new Thickness(8, 4, 8, 4), IsEnabled = false
                 };
                 DockPanel.SetDock(okBtn, Dock.Right);
@@ -1113,11 +1139,11 @@ namespace StateMachineEditorPlugin
 
                 foreach (var grp in allSeqFlows.GroupBy(c => c.CharacterKey).OrderBy(g => g.Key))
                 {
-                    listBox.Items.Add(new ListBoxItem { Content = grp.Key, IsEnabled = false, Foreground = new SolidColorBrush(Color.FromRgb(100, 160, 220)), FontWeight = FontWeights.SemiBold, FontSize = 10, Background = new SolidColorBrush(Color.FromRgb(42, 42, 48)), Padding = new Thickness(8, 3, 8, 3) });
+                    listBox.Items.Add(new ListBoxItem { Content = grp.Key, IsEnabled = false, Foreground = BrushTextMuted, FontWeight = FontWeights.SemiBold, FontSize = 10, Background = BrushGroupHeaderBg, Padding = new Thickness(8, 3, 8, 3) });
                     foreach (var ctrl in grp.OrderBy(c => c.Name))
                     {
                         var cc = ctrl;
-                        var li = new ListBoxItem { Content = $"{ctrl.Name}  ({ctrl.Nodes.Count} nodes)", Tag = cc, Padding = new Thickness(20, 4, 8, 4), Background = Brushes.Transparent, Foreground = new SolidColorBrush(Color.FromRgb(212, 212, 212)) };
+                        var li = new ListBoxItem { Content = $"{ctrl.Name}  ({ctrl.Nodes.Count} nodes)", Tag = cc, Padding = new Thickness(20, 4, 8, 4), Background = Brushes.Transparent, Foreground = BrushText };
                         li.MouseDoubleClick += (s, e) => { templateCtrl = cc; win.DialogResult = true; win.Close(); };
                         listBox.Items.Add(li);
                     }
@@ -1139,8 +1165,8 @@ namespace StateMachineEditorPlugin
                 {
                     Title = "New SeqFLOW Controller", Width = 380, Height = 320, SizeToContent = SizeToContent.Height,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                    Background = new SolidColorBrush(Color.FromRgb(37, 37, 38)),
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(63, 63, 70)),
+                    Background = BrushPanelBg,
+                    BorderBrush = BrushBorder,
                     BorderThickness = new Thickness(1), ResizeMode = ResizeMode.NoResize, ShowInTaskbar = false
                 };
                 var sp = new StackPanel { Margin = new Thickness(12) };
@@ -1152,22 +1178,22 @@ namespace StateMachineEditorPlugin
                 var charBox = new TextBox
                 {
                     Text = character, FontSize = 12,
-                    Background = new SolidColorBrush(Color.FromRgb(50, 50, 55)),
+                    Background = BrushInputBg,
                     Foreground = Brushes.White, CaretBrush = Brushes.White,
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(0, 122, 204)),
+                    BorderBrush = BrushControl,
                     Padding = new Thickness(6, 4, 6, 4), Margin = new Thickness(0, 4, 0, 8)
                 };
 
                 var actionBox = new TextBox
                 {
                     Text = "Attack", FontSize = 12,
-                    Background = new SolidColorBrush(Color.FromRgb(50, 50, 55)),
+                    Background = BrushInputBg,
                     Foreground = Brushes.White, CaretBrush = Brushes.White,
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(0, 122, 204)),
+                    BorderBrush = BrushControl,
                     Padding = new Thickness(6, 4, 6, 4), Margin = new Thickness(0, 4, 0, 8)
                 };
 
-                var preview = new TextBlock { Foreground = new SolidColorBrush(Color.FromRgb(78, 201, 176)), FontSize = 12, Margin = new Thickness(0, 4, 0, 8) };
+                var preview = new TextBlock { Foreground = BrushTextMuted, FontSize = 12, Margin = new Thickness(0, 4, 0, 8) };
 
                 void UpdatePreview()
                 {
@@ -1184,23 +1210,23 @@ namespace StateMachineEditorPlugin
                 var cancelBtn = new Button
                 {
                     Content = "Cancel", Width = 70,
-                    Background = new SolidColorBrush(Color.FromRgb(63, 63, 70)),
+                    Background = BrushBorder,
                     Foreground = Brushes.White, Padding = new Thickness(8, 4, 8, 4), Margin = new Thickness(0, 0, 8, 0)
                 };
                 cancelBtn.Click += (s, e) => { win.DialogResult = false; win.Close(); };
                 var okBtn = new Button
                 {
                     Content = "Create", Width = 80, IsDefault = true,
-                    Background = new SolidColorBrush(Color.FromRgb(0, 122, 204)),
+                    Background = BrushControl,
                     Foreground = Brushes.White, Padding = new Thickness(8, 6, 8, 6)
                 };
                 okBtn.Click += (s, e) => { win.DialogResult = true; win.Close(); };
                 btnPanel.Children.Add(cancelBtn);
                 btnPanel.Children.Add(okBtn);
 
-                sp.Children.Add(new TextBlock { Text = "Prefix", Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 180)), FontSize = 10 }); sp.Children.Add(prefixBox);
-                sp.Children.Add(new TextBlock { Text = "Character", Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 180)), FontSize = 10 }); sp.Children.Add(charBox);
-                sp.Children.Add(new TextBlock { Text = "Action Path", Foreground = new SolidColorBrush(Color.FromRgb(180, 180, 180)), FontSize = 10 }); sp.Children.Add(actionBox);
+                sp.Children.Add(new TextBlock { Text = "Prefix", Foreground = BrushTextDim, FontSize = 10 }); sp.Children.Add(prefixBox);
+                sp.Children.Add(new TextBlock { Text = "Character", Foreground = BrushTextDim, FontSize = 10 }); sp.Children.Add(charBox);
+                sp.Children.Add(new TextBlock { Text = "Action Path", Foreground = BrushTextDim, FontSize = 10 }); sp.Children.Add(actionBox);
                 sp.Children.Add(preview);
                 sp.Children.Add(btnPanel);
                 win.Content = sp;
@@ -1412,8 +1438,8 @@ namespace StateMachineEditorPlugin
                 Title = $"Kit Setup — {cg.DisplayName}",
                 Width = 520, Height = 480,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Background = new SolidColorBrush(Color.FromRgb(37, 37, 38)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(63, 63, 70)),
+                Background = BrushPanelBg,
+                BorderBrush = BrushBorder,
                 BorderThickness = new Thickness(1),
                 ResizeMode = ResizeMode.CanResize,
                 ShowInTaskbar = false
@@ -1430,8 +1456,8 @@ namespace StateMachineEditorPlugin
                 TextWrapping = TextWrapping.Wrap,
                 FontFamily = new FontFamily("Consolas"),
                 FontSize = 11.5,
-                Background = new SolidColorBrush(Color.FromRgb(30, 30, 30)),
-                Foreground = new SolidColorBrush(Color.FromRgb(212, 212, 212)),
+                Background = BrushWindowBg,
+                Foreground = BrushText,
                 BorderThickness = new Thickness(0),
                 Padding = new Thickness(12),
                 VerticalScrollBarVisibility = ScrollBarVisibility.Auto
@@ -1443,7 +1469,7 @@ namespace StateMachineEditorPlugin
             var copyBtn = new Button
             {
                 Content = "Copy to Clipboard", Width = 120,
-                Background = new SolidColorBrush(Color.FromRgb(0, 122, 204)),
+                Background = BrushControl,
                 Foreground = Brushes.White, Padding = new Thickness(8, 4, 8, 4), Margin = new Thickness(0, 0, 8, 0)
             };
             copyBtn.Click += (s, e) => { Clipboard.SetText(sb.ToString()); copyBtn.Content = "Copied!"; };
@@ -1452,7 +1478,7 @@ namespace StateMachineEditorPlugin
             var closeBtn = new Button
             {
                 Content = "Close", Width = 70,
-                Background = new SolidColorBrush(Color.FromRgb(63, 63, 70)),
+                Background = BrushBorder,
                 Foreground = Brushes.White, Padding = new Thickness(8, 4, 8, 4)
             };
             closeBtn.Click += (s, e) => win.Close();
@@ -1671,8 +1697,8 @@ namespace StateMachineEditorPlugin
 
             _toolbar = new Border
             {
-                Background      = new SolidColorBrush(Color.FromRgb(37, 37, 40)),
-                BorderBrush     = new SolidColorBrush(Color.FromRgb(63, 63, 70)),
+                Background      = BrushPanelBg,
+                BorderBrush     = BrushBorder,
                 BorderThickness = new Thickness(0, 0, 0, 1),
                 HorizontalAlignment = HorizontalAlignment.Stretch,
                 VerticalAlignment   = VerticalAlignment.Top,
@@ -1690,21 +1716,21 @@ namespace StateMachineEditorPlugin
             _toolbar.Child = panel;
 
             // Add Node button
-            var addBtn = MakeToolbarButton("+ Add Node", Color.FromRgb(0, 122, 204), "Add a node to this SeqFLOW chain");
+            var addBtn = MakeToolbarButton("+ Add Node", Color.FromRgb(0x00, 0x50, 0x80), "Add a node to this SeqFLOW chain");
             addBtn.Click += (s, e) => AddNodeToChain();
             panel.Children.Add(addBtn);
 
             // Separator
-            panel.Children.Add(new Border { Width = 1, Background = new SolidColorBrush(Color.FromRgb(63,63,70)), Margin = new Thickness(6, 2, 6, 2) });
+            panel.Children.Add(new Border { Width = 1, Background = BrushBorder, Margin = new Thickness(6, 2, 6, 2) });
 
             // Remove Node button
-            var removeBtn = MakeToolbarButton("✕ Remove Node", Color.FromRgb(160, 60, 60), "Remove selected node from this chain");
+            var removeBtn = MakeToolbarButton("✕ Remove Node", Color.FromRgb(0x80, 0x20, 0x20), "Remove selected node from this chain");
             removeBtn.Click += (s, e) => RemoveSelectedNodeFromChain();
             panel.Children.Add(removeBtn);
 
             // Commit chain
-            panel.Children.Add(new Border { Width = 1, Background = new SolidColorBrush(Color.FromRgb(63,63,70)), Margin = new Thickness(6, 2, 6, 2) });
-            var commitBtn = MakeToolbarButton("✔ Commit Chain", Color.FromRgb(0, 180, 100), "Rewire all transitions and rebuild Subjects list in sequence order");
+            panel.Children.Add(new Border { Width = 1, Background = BrushBorder, Margin = new Thickness(6, 2, 6, 2) });
+            var commitBtn = MakeToolbarButton("✔ Commit Chain", Color.FromRgb(0x20, 0x80, 0x20), "Rewire all transitions and rebuild Subjects list in sequence order");
             commitBtn.Click += (s, e) => CommitChain();
             panel.Children.Add(commitBtn);
 
@@ -1718,7 +1744,7 @@ namespace StateMachineEditorPlugin
             {
                 Content     = text,
                 ToolTip     = tooltip,
-                Foreground  = new SolidColorBrush(Color.FromRgb(212, 212, 212)),
+                Foreground  = BrushText,
                 Background  = new SolidColorBrush(Color.FromArgb(0, 0, 0, 0)),
                 BorderBrush = new SolidColorBrush(Color.FromArgb(80, accent.R, accent.G, accent.B)),
                 BorderThickness = new Thickness(1),
@@ -1762,8 +1788,8 @@ namespace StateMachineEditorPlugin
             {
                 Title = "Add Node to Chain", Width = 420, Height = 480,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Background    = new SolidColorBrush(Color.FromRgb(37, 37, 38)),
-                BorderBrush   = new SolidColorBrush(Color.FromRgb(63, 63, 70)),
+                Background    = BrushPanelBg,
+                BorderBrush   = BrushBorder,
                 BorderThickness = new Thickness(1), ResizeMode = ResizeMode.CanResize, ShowInTaskbar = false
             };
             var root = new Grid();
@@ -1773,9 +1799,9 @@ namespace StateMachineEditorPlugin
 
             var searchBox = new TextBox
             {
-                Background = new SolidColorBrush(Color.FromRgb(50,50,55)),
-                Foreground = new SolidColorBrush(Color.FromRgb(212,212,212)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(0,122,204)),
+                Background = BrushInputBg,
+                Foreground = BrushText,
+                BorderBrush = BrushControl,
                 BorderThickness = new Thickness(0,0,0,1),
                 CaretBrush = Brushes.White, Padding = new Thickness(8,6,8,6), FontSize=12
             };
@@ -1783,14 +1809,14 @@ namespace StateMachineEditorPlugin
 
             var listBox = new ListBox
             {
-                Background = new SolidColorBrush(Color.FromRgb(37,37,38)),
+                Background = BrushPanelBg,
                 BorderThickness = new Thickness(0),
-                Foreground = new SolidColorBrush(Color.FromRgb(212,212,212)),
+                Foreground = BrushText,
                 FontSize = 11
             };
             Grid.SetRow(listBox, 1); root.Children.Add(listBox);
 
-            var status = new TextBlock { Foreground = new SolidColorBrush(Color.FromRgb(133,133,133)), FontSize=10, Margin=new Thickness(8,4,8,4) };
+            var status = new TextBlock { Foreground = BrushTextDim, FontSize=10, Margin=new Thickness(8,4,8,4) };
             Grid.SetRow(status, 2); root.Children.Add(status);
             win.Content = root;
 
@@ -1808,11 +1834,11 @@ namespace StateMachineEditorPlugin
                 foreach (var grp in filtered.GroupBy(n => n.Parsed.IsValid ? n.Parsed.CharacterKey : "Other")
                                             .OrderBy(g => g.Key))
                 {
-                    listBox.Items.Add(new ListBoxItem { Content=grp.Key, IsEnabled=false, Foreground=new SolidColorBrush(Color.FromRgb(100,160,220)), FontWeight=FontWeights.SemiBold, FontSize=10, Background=new SolidColorBrush(Color.FromRgb(42,42,48)), Padding=new Thickness(8,3,8,3) });
+                    listBox.Items.Add(new ListBoxItem { Content=grp.Key, IsEnabled=false, Foreground=BrushTextMuted, FontWeight=FontWeights.SemiBold, FontSize=10, Background=BrushGroupHeaderBg, Padding=new Thickness(8,3,8,3) });
                     foreach (var n in grp.OrderBy(n => NodeDisplayName(n)))
                     {
                         var nn = n;
-                        var li = new ListBoxItem { Content=NodeDisplayName(nn), Tag=nn, Padding=new Thickness(20,4,8,4), Background=Brushes.Transparent, Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)) };
+                        var li = new ListBoxItem { Content=NodeDisplayName(nn), Tag=nn, Padding=new Thickness(20,4,8,4), Background=Brushes.Transparent, Foreground=BrushText };
                         li.MouseDoubleClick += (s,e) => { picked=nn; win.DialogResult=true; win.Close(); };
                         listBox.Items.Add(li);
                     }
@@ -2070,8 +2096,8 @@ namespace StateMachineEditorPlugin
         {
             var menu = new ContextMenu
             {
-                Background = new SolidColorBrush(Color.FromRgb(37,37,38)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(63,63,70)),
+                Background = BrushPanelBg,
+                BorderBrush = BrushBorder,
                 BorderThickness = new Thickness(1)
             };
             bool isSeq = _activeController != null &&
@@ -2086,7 +2112,7 @@ namespace StateMachineEditorPlugin
                     foreach (var t in node.Transitions)
                     {
                         var tc = t;
-                        var sub = new MenuItem { Header = $"-> {NodeDisplayName(tc.Target)}", Foreground = new SolidColorBrush(Color.FromRgb(212,212,212)), Background = Brushes.Transparent };
+                        var sub = new MenuItem { Header = $"-> {NodeDisplayName(tc.Target)}", Foreground = BrushText, Background = Brushes.Transparent };
                         sub.Click += (s,e) => BreakConnection(node, tc);
                         breakItem.Items.Add(sub);
                     }
@@ -2102,7 +2128,7 @@ namespace StateMachineEditorPlugin
                     {
                         var s2 = src2;
                         var tc = s2.Transitions.First(t => t.Target == node);
-                        var sub = new MenuItem { Header = $"<- {NodeDisplayName(s2)}", Foreground = new SolidColorBrush(Color.FromRgb(212,212,212)), Background = Brushes.Transparent };
+                        var sub = new MenuItem { Header = $"<- {NodeDisplayName(s2)}", Foreground = BrushText, Background = Brushes.Transparent };
                         sub.Click += (se,ev) => BreakConnection(s2, tc);
                         breakInItem.Items.Add(sub);
                     }
@@ -2137,18 +2163,18 @@ namespace StateMachineEditorPlugin
             {
                 Title = $"Connect [{NodeDisplayName(fromNode)}] to...", Width = 380, Height = 420,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Background = new SolidColorBrush(Color.FromRgb(37,37,38)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(63,63,70)),
+                Background = BrushPanelBg,
+                BorderBrush = BrushBorder,
                 BorderThickness = new Thickness(1), ResizeMode = ResizeMode.CanResize, ShowInTaskbar = false
             };
             var root = new Grid();
             root.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
             root.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
 
-            var search = new TextBox { Background=new SolidColorBrush(Color.FromRgb(50,50,55)), Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)), BorderBrush=new SolidColorBrush(Color.FromRgb(0,122,204)), BorderThickness=new Thickness(0,0,0,1), CaretBrush=Brushes.White, Padding=new Thickness(8,6,8,6), FontSize=12 };
+            var search = new TextBox { Background=BrushInputBg, Foreground=BrushText, BorderBrush=BrushControl, BorderThickness=new Thickness(0,0,0,1), CaretBrush=Brushes.White, Padding=new Thickness(8,6,8,6), FontSize=12 };
             Grid.SetRow(search, 0); root.Children.Add(search);
 
-            var list = new ListBox { Background=new SolidColorBrush(Color.FromRgb(37,37,38)), BorderThickness=new Thickness(0), Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)), FontSize=11 };
+            var list = new ListBox { Background=BrushPanelBg, BorderThickness=new Thickness(0), Foreground=BrushText, FontSize=11 };
             Grid.SetRow(list, 1); root.Children.Add(list);
             win.Content = root;
 
@@ -2161,8 +2187,8 @@ namespace StateMachineEditorPlugin
                     var nn = n;
                     var li = new ListBoxItem { Padding=new Thickness(8,4,8,4), Background=Brushes.Transparent };
                     var sp = new StackPanel { Orientation=Orientation.Horizontal };
-                    if (nn.SequenceIndex >= 0) sp.Children.Add(new TextBlock { Text=$"#{nn.SequenceIndex+1}  ", Foreground=new SolidColorBrush(Color.FromRgb(0,122,204)), FontWeight=FontWeights.Bold, FontSize=10, VerticalAlignment=VerticalAlignment.Center });
-                    sp.Children.Add(new TextBlock { Text=NodeDisplayName(nn), Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)) });
+                    if (nn.SequenceIndex >= 0) sp.Children.Add(new TextBlock { Text=$"#{nn.SequenceIndex+1}  ", Foreground=BrushControl, FontWeight=FontWeights.Bold, FontSize=10, VerticalAlignment=VerticalAlignment.Center });
+                    sp.Children.Add(new TextBlock { Text=NodeDisplayName(nn), Foreground=BrushText });
                     li.Content = sp; li.Tag = nn;
                     li.MouseDoubleClick += (s,e) => { MakeConnection(fromNode, nn); win.Close(); };
                     list.Items.Add(li);
@@ -2184,13 +2210,13 @@ namespace StateMachineEditorPlugin
             var candidates = _activeNodes.Where(n => n != toNode && !existingSources.Contains(n)).ToList();
             if (candidates.Count == 0) { App.Logger.LogWarning("StateMachineEditor: no source nodes available"); return; }
 
-            var win = new Window { Title=$"Connect ... to [{NodeDisplayName(toNode)}]", Width=380, Height=420, WindowStartupLocation=WindowStartupLocation.CenterOwner, Background=new SolidColorBrush(Color.FromRgb(37,37,38)), BorderBrush=new SolidColorBrush(Color.FromRgb(63,63,70)), BorderThickness=new Thickness(1), ResizeMode=ResizeMode.CanResize, ShowInTaskbar=false };
+            var win = new Window { Title=$"Connect ... to [{NodeDisplayName(toNode)}]", Width=380, Height=420, WindowStartupLocation=WindowStartupLocation.CenterOwner, Background=BrushPanelBg, BorderBrush=BrushBorder, BorderThickness=new Thickness(1), ResizeMode=ResizeMode.CanResize, ShowInTaskbar=false };
             var root = new Grid();
             root.RowDefinitions.Add(new RowDefinition { Height=GridLength.Auto });
             root.RowDefinitions.Add(new RowDefinition { Height=new GridLength(1,GridUnitType.Star) });
-            var search = new TextBox { Background=new SolidColorBrush(Color.FromRgb(50,50,55)), Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)), BorderBrush=new SolidColorBrush(Color.FromRgb(0,122,204)), BorderThickness=new Thickness(0,0,0,1), CaretBrush=Brushes.White, Padding=new Thickness(8,6,8,6), FontSize=12 };
+            var search = new TextBox { Background=BrushInputBg, Foreground=BrushText, BorderBrush=BrushControl, BorderThickness=new Thickness(0,0,0,1), CaretBrush=Brushes.White, Padding=new Thickness(8,6,8,6), FontSize=12 };
             Grid.SetRow(search,0); root.Children.Add(search);
-            var list = new ListBox { Background=new SolidColorBrush(Color.FromRgb(37,37,38)), BorderThickness=new Thickness(0), Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)), FontSize=11 };
+            var list = new ListBox { Background=BrushPanelBg, BorderThickness=new Thickness(0), Foreground=BrushText, FontSize=11 };
             Grid.SetRow(list,1); root.Children.Add(list);
             win.Content = root;
             void Rebuild(string f)
@@ -2591,7 +2617,7 @@ namespace StateMachineEditorPlugin
 
         private void ShowCanvasContextMenu(Point canvasPos)
         {
-            var menu = new ContextMenu { Background = new SolidColorBrush(Color.FromRgb(37,37,38)), BorderBrush = new SolidColorBrush(Color.FromRgb(63,63,70)) };
+            var menu = new ContextMenu { Background = BrushPanelBg, BorderBrush = BrushBorder };
 
             // "Create Frame from Selection" - only if nodes selected
             if (_selectedNodes.Count > 0)
@@ -2615,7 +2641,7 @@ namespace StateMachineEditorPlugin
                 var createItem = new MenuItem
                 {
                     Header     = $"Create Frame from Selection  ({_selectedNodes.Count} nodes)",
-                    Foreground = new SolidColorBrush(Color.FromRgb(212,212,212)),
+                    Foreground = BrushText,
                     Background = Brushes.Transparent
                 };
                 createItem.Click += (s, e) => CreateFrameFromSelection();
@@ -2693,15 +2719,15 @@ namespace StateMachineEditorPlugin
             {
                 Title = "Create Frame", Width = 340, Height = 195,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Background    = new SolidColorBrush(Color.FromRgb(37, 37, 38)),
-                BorderBrush   = new SolidColorBrush(Color.FromRgb(63, 63, 70)),
+                Background    = BrushPanelBg,
+                BorderBrush   = BrushBorder,
                 BorderThickness = new Thickness(1), ResizeMode = ResizeMode.NoResize, ShowInTaskbar = false
             };
             var root = new StackPanel { Margin = new Thickness(14) };
-            root.Children.Add(new TextBlock { Text = "Label:", Foreground = new SolidColorBrush(Color.FromRgb(180,180,180)), FontSize=11, Margin=new Thickness(0,0,0,5) });
-            var tb = new TextBox { Text=defLabel, Background=new SolidColorBrush(Color.FromRgb(60,60,60)), Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)), BorderBrush=new SolidColorBrush(Color.FromRgb(63,63,70)), CaretBrush=Brushes.White, Padding=new Thickness(6,4,6,4), FontSize=11 };
+            root.Children.Add(new TextBlock { Text = "Label:", Foreground = BrushTextDim, FontSize=11, Margin=new Thickness(0,0,0,5) });
+            var tb = new TextBox { Text=defLabel, Background=BrushInputBg, Foreground=BrushText, BorderBrush=BrushBorder, CaretBrush=Brushes.White, Padding=new Thickness(6,4,6,4), FontSize=11 };
             root.Children.Add(tb);
-            root.Children.Add(new TextBlock { Text="Color:", Foreground=new SolidColorBrush(Color.FromRgb(180,180,180)), FontSize=11, Margin=new Thickness(0,10,0,5) });
+            root.Children.Add(new TextBlock { Text="Color:", Foreground=BrushTextDim, FontSize=11, Margin=new Thickness(0,10,0,5) });
             var colorRow = new WrapPanel();
             Border selSwatch = null;
             foreach (var preset in FrameColorPresets)
@@ -2715,8 +2741,8 @@ namespace StateMachineEditorPlugin
             if (selSwatch == null && colorRow.Children.Count > 0) { selSwatch = colorRow.Children[0] as Border; if(selSwatch!=null) selSwatch.BorderBrush=Brushes.White; }
             root.Children.Add(colorRow);
             var btnRow = new StackPanel { Orientation=Orientation.Horizontal, HorizontalAlignment=HorizontalAlignment.Right, Margin=new Thickness(0,14,0,0) };
-            var ok  = new Button { Content="Create", Width=75, Margin=new Thickness(0,0,8,0), Background=new SolidColorBrush(Color.FromRgb(0,122,204)), Foreground=Brushes.White, BorderThickness=new Thickness(0), Padding=new Thickness(0,5,0,5) };
-            var can = new Button { Content="Cancel", Width=75, Background=new SolidColorBrush(Color.FromRgb(63,63,70)), Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)), BorderThickness=new Thickness(0), Padding=new Thickness(0,5,0,5) };
+            var ok  = new Button { Content="Create", Width=75, Margin=new Thickness(0,0,8,0), Background=BrushControl, Foreground=Brushes.White, BorderThickness=new Thickness(0), Padding=new Thickness(0,5,0,5) };
+            var can = new Button { Content="Cancel", Width=75, Background=BrushBorder, Foreground=BrushText, BorderThickness=new Thickness(0), Padding=new Thickness(0,5,0,5) };
             ok.Click  += (s,e)=>{ resultLabel=tb.Text?.Trim(); win.DialogResult=true;  win.Close(); };
             can.Click += (s,e)=>{ win.DialogResult=false; win.Close(); };
             tb.KeyDown+= (s,e)=>{ if(e.Key==Key.Return){ resultLabel=tb.Text?.Trim(); win.DialogResult=true; win.Close(); } };
@@ -2731,14 +2757,14 @@ namespace StateMachineEditorPlugin
         private string PromptFrameName(string defaultName)
         {
             string result = defaultName;
-            var win = new Window { Title="Rename Frame", Width=300, Height=120, WindowStartupLocation=WindowStartupLocation.CenterOwner, Background=new SolidColorBrush(Color.FromRgb(37,37,38)), BorderBrush=new SolidColorBrush(Color.FromRgb(63,63,70)), BorderThickness=new Thickness(1), ResizeMode=ResizeMode.NoResize, ShowInTaskbar=false };
+            var win = new Window { Title="Rename Frame", Width=300, Height=120, WindowStartupLocation=WindowStartupLocation.CenterOwner, Background=BrushPanelBg, BorderBrush=BrushBorder, BorderThickness=new Thickness(1), ResizeMode=ResizeMode.NoResize, ShowInTaskbar=false };
             var sp = new StackPanel { Margin=new Thickness(14) };
-            sp.Children.Add(new TextBlock { Text="Frame label:", Foreground=new SolidColorBrush(Color.FromRgb(180,180,180)), FontSize=11, Margin=new Thickness(0,0,0,6) });
-            var tb = new TextBox { Text=defaultName, Background=new SolidColorBrush(Color.FromRgb(60,60,60)), Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)), BorderBrush=new SolidColorBrush(Color.FromRgb(63,63,70)), Padding=new Thickness(6,4,6,4), CaretBrush=Brushes.White, FontSize=11 };
+            sp.Children.Add(new TextBlock { Text="Frame label:", Foreground=BrushTextDim, FontSize=11, Margin=new Thickness(0,0,0,6) });
+            var tb = new TextBox { Text=defaultName, Background=BrushInputBg, Foreground=BrushText, BorderBrush=BrushBorder, Padding=new Thickness(6,4,6,4), CaretBrush=Brushes.White, FontSize=11 };
             sp.Children.Add(tb);
             var btnRow = new StackPanel { Orientation=Orientation.Horizontal, HorizontalAlignment=HorizontalAlignment.Right, Margin=new Thickness(0,12,0,0) };
-            var ok  = new Button { Content="OK",     Width=70, Margin=new Thickness(0,0,8,0), Background=new SolidColorBrush(Color.FromRgb(0,122,204)), Foreground=Brushes.White, BorderThickness=new Thickness(0), Padding=new Thickness(0,5,0,5) };
-            var can = new Button { Content="Cancel", Width=70, Background=new SolidColorBrush(Color.FromRgb(63,63,70)), Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)), BorderThickness=new Thickness(0), Padding=new Thickness(0,5,0,5) };
+            var ok  = new Button { Content="OK",     Width=70, Margin=new Thickness(0,0,8,0), Background=BrushControl, Foreground=Brushes.White, BorderThickness=new Thickness(0), Padding=new Thickness(0,5,0,5) };
+            var can = new Button { Content="Cancel", Width=70, Background=BrushBorder, Foreground=BrushText, BorderThickness=new Thickness(0), Padding=new Thickness(0,5,0,5) };
             ok.Click  += (s,e)=>{ result=tb.Text?.Trim(); win.DialogResult=true;  win.Close(); };
             can.Click += (s,e)=>{ result=null;            win.DialogResult=false; win.Close(); };
             tb.KeyDown+= (s,e)=>{ if(e.Key==Key.Return){ result=tb.Text?.Trim(); win.DialogResult=true; win.Close(); } };
@@ -3099,7 +3125,7 @@ namespace StateMachineEditorPlugin
         {
             bool sel  = node == _selectedNode;
             var catColor    = CategoryBorderBrush(node.Category);
-            var selColor    = new SolidColorBrush(Color.FromRgb(0, 122, 204));
+            var selColor    = BrushControl;
 
             // ── Outer container (Canvas-positioned) ───────────────────────
             var container = new Canvas { Width = NodeW, Height = NodeH, IsHitTestVisible = true };
@@ -3111,7 +3137,7 @@ namespace StateMachineEditorPlugin
             {
                 Width           = NodeW,
                 Height          = NodeH,
-                Background      = new SolidColorBrush(Color.FromRgb(37, 37, 38)),
+                Background      = BrushPanelBg,
                 BorderBrush     = sel ? selColor : catColor,
                 BorderThickness = new Thickness(sel ? 0 : 0),  // we use top accent instead
                 CornerRadius    = new CornerRadius(5),
@@ -3145,9 +3171,9 @@ namespace StateMachineEditorPlugin
             {
                 var badge = new Border
                 {
-                    Background    = new SolidColorBrush(Color.FromRgb(30, 30, 35)),
+                    Background    = BrushWindowBg,
                     BorderBrush   = sel
-                        ? new SolidColorBrush(Color.FromRgb(0, 122, 204))
+                        ? BrushControl
                         : CategoryBorderBrush(node.Category),
                     BorderThickness = new Thickness(1),
                     CornerRadius  = new CornerRadius(3),
@@ -3160,7 +3186,7 @@ namespace StateMachineEditorPlugin
                 {
                     Text              = (node.SequenceIndex + 1).ToString(),
                     Foreground        = sel
-                        ? new SolidColorBrush(Color.FromRgb(0, 122, 204))
+                        ? BrushControl
                         : CategoryBorderBrush(node.Category),
                     FontSize          = 11,
                     FontWeight        = FontWeights.Bold,
@@ -3237,7 +3263,7 @@ namespace StateMachineEditorPlugin
             // Hover highlight
             portIn.MouseEnter += (s, e) =>
             {
-                portIn.Fill   = new SolidColorBrush(Color.FromRgb(0, 122, 204));
+                portIn.Fill   = BrushControl;
                 portIn.Stroke = Brushes.White;
                 if (_wiringActive) _wireHoverTarget = node;
             };
@@ -3351,13 +3377,13 @@ namespace StateMachineEditorPlugin
                 if (border == null) continue;
                 border.BorderThickness = new Thickness(isSel ? 2 : 0);
                 border.BorderBrush     = isSel
-                    ? new SolidColorBrush(Color.FromRgb(0, 122, 204))
+                    ? BrushControl
                     : Brushes.Transparent;
                 var content = border.Child as Grid;
                 var accent  = content?.Children.OfType<Border>().FirstOrDefault();
                 if (accent != null)
                     accent.Background = isSel
-                        ? new SolidColorBrush(Color.FromRgb(0, 122, 204))
+                        ? BrushControl
                         : CategoryBorderBrush(stateNode?.Category);
             }
         }
@@ -3445,7 +3471,7 @@ namespace StateMachineEditorPlugin
         {
             if (_editPanel == null || node == null) return;
             _editPanel.Items.Clear();
-            _editPanel.Background = new SolidColorBrush(Color.FromRgb(37, 37, 38));
+            _editPanel.Background = BrushPanelBg;
 
             var ov = MakeTab("Overview", out var op);
 
@@ -3482,13 +3508,13 @@ namespace StateMachineEditorPlugin
                 var subObj  = subjects[si];
                 var subName = GetRawName(subObj);
                 var subType = subObj.GetType().Name.Replace("CharacterState","").Replace("ControllerData","");
-                op.Children.Add(new Border { Height=1, Background=new SolidColorBrush(Color.FromRgb(63,63,70)), Margin=new Thickness(0,8,0,6) });
+                op.Children.Add(new Border { Height=1, Background=BrushBorder, Margin=new Thickness(0,8,0,6) });
                 // Subject header row with name + type
                 var hdr = new Grid();
                 hdr.ColumnDefinitions.Add(new ColumnDefinition { Width=new GridLength(1,GridUnitType.Star) });
                 hdr.ColumnDefinitions.Add(new ColumnDefinition { Width=GridLength.Auto });
-                hdr.Children.Add(new TextBlock { Text=$"{subType.ToUpperInvariant()}", Foreground=new SolidColorBrush(Color.FromRgb(133,133,133)), FontSize=9, FontWeight=FontWeights.SemiBold, VerticalAlignment=VerticalAlignment.Center, Margin=new Thickness(4,0,0,0) });
-                var copyBtn = new Button { Content="Copy from...", FontSize=9, Padding=new Thickness(6,2,6,2), Background=new SolidColorBrush(Color.FromRgb(50,50,55)), Foreground=new SolidColorBrush(Color.FromRgb(180,180,200)), BorderBrush=new SolidColorBrush(Color.FromRgb(80,80,100)), BorderThickness=new Thickness(1), Cursor=Cursors.Hand };
+                hdr.Children.Add(new TextBlock { Text=$"{subType.ToUpperInvariant()}", Foreground=BrushTextDim, FontSize=9, FontWeight=FontWeights.SemiBold, VerticalAlignment=VerticalAlignment.Center, Margin=new Thickness(4,0,0,0) });
+                var copyBtn = new Button { Content="Copy from...", FontSize=9, Padding=new Thickness(6,2,6,2), Background=BrushInputBg, Foreground=new SolidColorBrush(Color.FromRgb(180,180,200)), BorderBrush=new SolidColorBrush(Color.FromRgb(80,80,100)), BorderThickness=new Thickness(1), Cursor=Cursors.Hand };
                 var capturedSi = si; var capturedSubObj = subObj;
                 copyBtn.Click += (s,e) => ShowCopyFromMenu(node, capturedSi, capturedSubObj, copyBtn);
                 Grid.SetColumn(copyBtn, 1);
@@ -3557,14 +3583,14 @@ namespace StateMachineEditorPlugin
 
         private TabItem MakeTab(string header, out StackPanel panel)
         {
-            panel = new StackPanel { Margin = new Thickness(6), Background = new SolidColorBrush(Color.FromRgb(37, 37, 38)) };
+            panel = new StackPanel { Margin = new Thickness(6), Background = BrushPanelBg };
             return new TabItem
             {
                 Header  = header,
                 Content = new ScrollViewer
                 {
                     Content = panel,
-                    Background = new SolidColorBrush(Color.FromRgb(37, 37, 38)),
+                    Background = BrushPanelBg,
                     VerticalScrollBarVisibility   = ScrollBarVisibility.Auto,
                     HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
                 }
@@ -3579,7 +3605,7 @@ namespace StateMachineEditorPlugin
             var lbl = new TextBlock
             {
                 Text = label,
-                Foreground = new SolidColorBrush(Color.FromRgb(133, 133, 133)),  // #858585
+                Foreground = BrushTextDim,  // #858585
                 FontSize = 11,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(4, 0, 4, 0)
@@ -3587,10 +3613,10 @@ namespace StateMachineEditorPlugin
             var val = new TextBox
             {
                 Text = value,
-                Foreground = new SolidColorBrush(Color.FromRgb(212, 212, 212)),  // #D4D4D4
-                Background = new SolidColorBrush(Color.FromRgb(60, 60, 60)),     // #3C3C3C
-                BorderBrush = new SolidColorBrush(Color.FromRgb(63, 63, 70)),    // #3F3F46
-                CaretBrush = new SolidColorBrush(Color.FromRgb(212, 212, 212)),
+                Foreground = BrushText,  // #D4D4D4
+                Background = BrushInputBg,     // #3C3C3C
+                BorderBrush = BrushBorder,    // #3F3F46
+                CaretBrush = BrushText,
                 BorderThickness = new Thickness(0, 0, 0, 1),
                 FontSize = 11,
                 Padding = new Thickness(4, 2, 4, 2),
@@ -3611,17 +3637,17 @@ namespace StateMachineEditorPlugin
             var lbl = new TextBlock
             {
                 Text = label,
-                Foreground = new SolidColorBrush(Color.FromRgb(133, 133, 133)),
+                Foreground = BrushTextDim,
                 FontSize = 11, VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(4, 0, 4, 0)
             };
             var tb = new TextBox
             {
                 Text = value,
-                Foreground = new SolidColorBrush(Color.FromRgb(212, 212, 212)),
-                Background = new SolidColorBrush(Color.FromRgb(45, 45, 48)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(0, 122, 204)),
-                CaretBrush = new SolidColorBrush(Color.FromRgb(212, 212, 212)),
+                Foreground = BrushText,
+                Background = BrushInputBg,
+                BorderBrush = BrushControl,
+                CaretBrush = BrushText,
                 BorderThickness = new Thickness(0, 0, 0, 1),
                 FontSize = 11, Padding = new Thickness(4, 2, 4, 2),
                 IsReadOnly = false
@@ -3630,7 +3656,7 @@ namespace StateMachineEditorPlugin
             var editMark = new TextBlock
             {
                 Text = "✎", FontSize = 10,
-                Foreground = new SolidColorBrush(Color.FromRgb(0, 122, 204)),
+                Foreground = BrushControl,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(4, 0, 4, 0),
                 ToolTip = "Press Enter to save"
@@ -3673,8 +3699,8 @@ namespace StateMachineEditorPlugin
             {
                 Title = "Copy properties from...", Width = 420, Height = 480,
                 WindowStartupLocation = WindowStartupLocation.CenterOwner,
-                Background    = new SolidColorBrush(Color.FromRgb(37, 37, 38)),
-                BorderBrush   = new SolidColorBrush(Color.FromRgb(63, 63, 70)),
+                Background    = BrushPanelBg,
+                BorderBrush   = BrushBorder,
                 BorderThickness = new Thickness(1), ResizeMode = ResizeMode.CanResize, ShowInTaskbar = false
             };
 
@@ -3686,25 +3712,25 @@ namespace StateMachineEditorPlugin
             // Search box
             var searchBox = new TextBox
             {
-                Background = new SolidColorBrush(Color.FromRgb(50,50,55)),
-                Foreground = new SolidColorBrush(Color.FromRgb(212,212,212)),
-                BorderBrush = new SolidColorBrush(Color.FromRgb(0,122,204)),
+                Background = BrushInputBg,
+                Foreground = BrushText,
+                BorderBrush = BrushControl,
                 BorderThickness = new Thickness(0,0,0,1),
                 CaretBrush = Brushes.White, Padding = new Thickness(8,6,8,6), FontSize=12,
                 Margin = new Thickness(0)
             };
             // Placeholder
-            searchBox.GotFocus  += (s,e) => { if(searchBox.Tag as string == "ph"){ searchBox.Text=""; searchBox.Foreground=new SolidColorBrush(Color.FromRgb(212,212,212)); searchBox.Tag=null; }};
-            searchBox.LostFocus += (s,e) => { if(string.IsNullOrEmpty(searchBox.Text)){ searchBox.Text="Search nodes..."; searchBox.Foreground=new SolidColorBrush(Color.FromRgb(133,133,133)); searchBox.Tag="ph"; }};
-            searchBox.Text="Search nodes..."; searchBox.Foreground=new SolidColorBrush(Color.FromRgb(133,133,133)); searchBox.Tag="ph";
+            searchBox.GotFocus  += (s,e) => { if(searchBox.Tag as string == "ph"){ searchBox.Text=""; searchBox.Foreground=BrushText; searchBox.Tag=null; }};
+            searchBox.LostFocus += (s,e) => { if(string.IsNullOrEmpty(searchBox.Text)){ searchBox.Text="Search nodes..."; searchBox.Foreground=BrushTextDim; searchBox.Tag="ph"; }};
+            searchBox.Text="Search nodes..."; searchBox.Foreground=BrushTextDim; searchBox.Tag="ph";
             Grid.SetRow(searchBox, 0); root.Children.Add(searchBox);
 
             // Results list
             var listBox = new ListBox
             {
-                Background = new SolidColorBrush(Color.FromRgb(37,37,38)),
+                Background = BrushPanelBg,
                 BorderThickness = new Thickness(0),
-                Foreground = new SolidColorBrush(Color.FromRgb(212,212,212)),
+                Foreground = BrushText,
                 FontSize = 11
             };
             Grid.SetRow(listBox, 1); root.Children.Add(listBox);
@@ -3712,7 +3738,7 @@ namespace StateMachineEditorPlugin
             // Status bar
             var statusBar = new TextBlock
             {
-                Foreground = new SolidColorBrush(Color.FromRgb(133,133,133)),
+                Foreground = BrushTextDim,
                 FontSize = 10, Margin = new Thickness(8,4,8,4)
             };
             Grid.SetRow(statusBar, 2); root.Children.Add(statusBar);
@@ -3734,9 +3760,9 @@ namespace StateMachineEditorPlugin
                     var hdr = new ListBoxItem
                     {
                         Content = grp.Key, IsEnabled = false,
-                        Foreground = new SolidColorBrush(Color.FromRgb(100,160,220)),
+                        Foreground = BrushTextMuted,
                         FontWeight = FontWeights.SemiBold, FontSize = 10,
-                        Background = new SolidColorBrush(Color.FromRgb(42,42,48)),
+                        Background = BrushGroupHeaderBg,
                         Padding = new Thickness(8,3,8,3)
                     };
                     listBox.Items.Add(hdr);
@@ -3750,7 +3776,7 @@ namespace StateMachineEditorPlugin
                             Tag = (sn, ss),
                             Padding = new Thickness(20,4,8,4),
                             Background = Brushes.Transparent,
-                            Foreground = new SolidColorBrush(Color.FromRgb(212,212,212))
+                            Foreground = BrushText
                         };
                         item.MouseDoubleClick += (s,e) =>
                         {

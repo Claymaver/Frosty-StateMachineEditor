@@ -17,7 +17,7 @@
                     <Border Background="Transparent" Width="16" Height="16">
                         <Path x:Name="Arrow"
                               Data="M 4 6 L 8 10 L 12 6"
-                              Stroke="#FFD4D4D4" StrokeThickness="1.8"
+                              Stroke="#FFF8F8F8" StrokeThickness="1.8"
                               StrokeLineJoin="Round" StrokeStartLineCap="Round"
                               StrokeEndLineCap="Round"
                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -38,7 +38,7 @@
     <!-- ── TreeViewItem ────────────────────────────────────────────────── -->
     <Style x:Key="DarkTreeViewItemStyle" TargetType="{x:Type TreeViewItem}">
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="#FFD4D4D4"/>
+        <Setter Property="Foreground" Value="#FFF8F8F8"/>
         <Setter Property="Padding"    Value="2,2,2,2"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -72,8 +72,8 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsExpanded"  Value="false"><Setter TargetName="ItemsHost" Property="Visibility"  Value="Collapsed"/></Trigger>
                         <Trigger Property="HasItems"    Value="false"><Setter TargetName="Expander"  Property="Visibility"  Value="Hidden"/></Trigger>
-                        <Trigger Property="IsSelected"  Value="true"> <Setter TargetName="Bd"        Property="Background"  Value="#FF094771"/></Trigger>
-                        <Trigger Property="IsMouseOver" Value="true"> <Setter TargetName="Bd"        Property="Background"  Value="#FF2D2D30"/></Trigger>
+                        <Trigger Property="IsSelected"  Value="true"> <Setter TargetName="Bd"        Property="Background"  Value="#FF404040"/></Trigger>
+                        <Trigger Property="IsMouseOver" Value="true"> <Setter TargetName="Bd"        Property="Background"  Value="#FF303030"/></Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -91,7 +91,7 @@
                         <Border x:Name="TabBd" Background="Transparent"
                                 BorderThickness="0" Padding="{TemplateBinding Padding}">
                             <TextBlock x:Name="TabTxt" Text="{TemplateBinding Header}"
-                                       Foreground="#FF858585"
+                                       Foreground="#FF868686"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <Border x:Name="Underline" Height="2" VerticalAlignment="Bottom"
@@ -99,13 +99,13 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="TabBd"     Property="Background"  Value="#FF252526"/>
-                            <Setter TargetName="TabTxt"    Property="Foreground"  Value="#FFD4D4D4"/>
-                            <Setter TargetName="Underline" Property="Background"  Value="#FF007ACC"/>
+                            <Setter TargetName="TabBd"     Property="Background"  Value="#FF292929"/>
+                            <Setter TargetName="TabTxt"    Property="Foreground"  Value="#FFF8F8F8"/>
+                            <Setter TargetName="Underline" Property="Background"  Value="#FF6C6C6C"/>
                         </Trigger>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="TabBd"  Property="Background" Value="#FF2D2D30"/>
-                            <Setter TargetName="TabTxt" Property="Foreground" Value="#FFD4D4D4"/>
+                            <Setter TargetName="TabBd"  Property="Background" Value="#FF303030"/>
+                            <Setter TargetName="TabTxt" Property="Foreground" Value="#FFF8F8F8"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -118,7 +118,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type local:StateMachineEditor}">
-                    <Grid Background="#FF1E1E1E">
+                    <Grid Background="#FF141414">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="300" MinWidth="180" MaxWidth="500"/>
                             <ColumnDefinition Width="4"/>
@@ -126,7 +126,7 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- LEFT: Explorer -->
-                        <Border Background="#FF252526" BorderBrush="#FF3F3F46" BorderThickness="0,0,1,0">
+                        <Border Background="#FF292929" BorderBrush="#FF3F3F3F" BorderThickness="0,0,1,0">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="30"/>
@@ -135,34 +135,34 @@
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
 
-                                <Border Grid.Row="0" Background="#FF2D2D30"
-                                        BorderBrush="#FF3F3F46" BorderThickness="0,0,0,1">
+                                <Border Grid.Row="0" Background="#FF303030"
+                                        BorderBrush="#FF3F3F3F" BorderThickness="0,0,0,1">
                                     <DockPanel>
                                         <Button x:Name="PART_ViewToggle" DockPanel.Dock="Right"
                                                         Content="Graph" Width="74" Height="20"
                                                 Margin="4,0,6,0" FontSize="10"
-                                                Background="#FF3C3C3C" Foreground="#FFD4D4D4"
-                                                BorderBrush="#FF3F3F46" BorderThickness="1"
+                                                Background="#FF454545" Foreground="#FFF8F8F8"
+                                                BorderBrush="#FF3F3F3F" BorderThickness="1"
                                                 ToolTip="Switch between Graph and EBX Property views"/>
-                                        <TextBlock Text="EXPLORER" Foreground="#FF858585"
+                                        <TextBlock Text="EXPLORER" Foreground="#FF868686"
                                                    FontSize="10" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" Margin="10,0,0,0"/>
                                     </DockPanel>
                                 </Border>
 
-                                <Border Grid.Row="1" Padding="6,4" Background="#FF252526"
-                                        BorderBrush="#FF3F3F46" BorderThickness="0,0,0,1">
+                                <Border Grid.Row="1" Padding="6,4" Background="#FF292929"
+                                        BorderBrush="#FF3F3F3F" BorderThickness="0,0,0,1">
                                     <TextBox x:Name="PART_SearchBox"
-                                             Background="#FF3C3C3C" Foreground="#FFD4D4D4"
-                                             CaretBrush="#FFD4D4D4" BorderBrush="#FF3F3F46"
+                                             Background="#FF292929" Foreground="#FFF8F8F8"
+                                             CaretBrush="#FFF8F8F8" BorderBrush="#FF3F3F3F"
                                              BorderThickness="1" Padding="6,3" FontSize="11"
                                              Height="22" VerticalContentAlignment="Center"/>
                                 </Border>
 
-                                <Border Grid.Row="2" Padding="6,3" Background="#FF252526"
-                                        BorderBrush="#FF3F3F46" BorderThickness="0,0,0,1">
+                                <Border Grid.Row="2" Padding="6,3" Background="#FF292929"
+                                        BorderBrush="#FF3F3F3F" BorderThickness="0,0,0,1">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="Sort" Foreground="#FF858585" FontSize="10"
+                                        <TextBlock Text="Sort" Foreground="#FF868686" FontSize="10"
                                                    VerticalAlignment="Center" Margin="0,0,6,0"/>
                                         <ComboBox x:Name="PART_SortCombo" Width="160" Height="22" FontSize="11">
                                             <ComboBoxItem Content="Category then Name" IsSelected="True"/>
@@ -175,14 +175,14 @@
 
                                 <TreeView x:Name="PART_TreeView" Grid.Row="3"
                                           Background="Transparent" BorderThickness="0"
-                                          Foreground="#FFD4D4D4"
+                                          Foreground="#FFF8F8F8"
                                           ItemContainerStyle="{StaticResource DarkTreeViewItemStyle}"
                                           VirtualizingPanel.IsVirtualizing="True"
                                           VirtualizingPanel.VirtualizationMode="Recycling"/>
                             </Grid>
                         </Border>
 
-                        <GridSplitter Grid.Column="1" Width="4" Background="#FF3F3F46"
+                        <GridSplitter Grid.Column="1" Width="4" Background="#FF3F3F3F"
                                       HorizontalAlignment="Stretch"/>
 
                         <!-- RIGHT: Graph + Inspector / Property Grid -->
@@ -200,13 +200,13 @@
 
                             <!-- Infinite grid canvas -->
                             <Border x:Name="PART_CanvasBorder" ClipToBounds="True"
-                                    BorderBrush="#FF3F3F46" BorderThickness="0">
+                                    BorderBrush="#FF3F3F3F" BorderThickness="0">
                                 <Border.Background>
                                     <DrawingBrush TileMode="Tile" Viewport="0,0,50,50" ViewportUnits="Absolute">
                                         <DrawingBrush.Drawing>
-                                            <GeometryDrawing Brush="#FF1E1E1E">
+                                            <GeometryDrawing Brush="#FF141414">
                                                 <GeometryDrawing.Pen>
-                                                    <Pen Brush="#FF2D2D2D" Thickness="1"/>
+                                                    <Pen Brush="#FF232323" Thickness="1"/>
                                                 </GeometryDrawing.Pen>
                                                 <GeometryDrawing.Geometry>
                                                     <GeometryGroup>
@@ -223,19 +223,19 @@
                                         HorizontalAlignment="Left" VerticalAlignment="Top"/>
                             </Border>
 
-                            <GridSplitter Grid.Row="1" Height="4" Background="#FF3F3F46"
+                            <GridSplitter Grid.Row="1" Height="4" Background="#FF3F3F3F"
                                           HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
                             <!-- Node Inspector -->
-                            <Border Grid.Row="2" Background="#FF252526"
-                                    BorderBrush="#FF3F3F46" BorderThickness="0,1,0,0">
+                            <Border Grid.Row="2" Background="#FF292929"
+                                    BorderBrush="#FF3F3F3F" BorderThickness="0,1,0,0">
                                 <TabControl x:Name="PART_EditPanel"
-                                            Background="#FF252526" BorderBrush="#FF3F3F46"
-                                            BorderThickness="0" Foreground="#FFD4D4D4"
+                                            Background="#FF292929" BorderBrush="#FF3F3F3F"
+                                            BorderThickness="0" Foreground="#FFF8F8F8"
                                             ItemContainerStyle="{StaticResource DarkTabItemStyle}">
                                     <TabItem Header="Overview">
                                         <TextBlock Text="Select a node in the graph to inspect it."
-                                                   Foreground="#FF858585" FontStyle="Italic"
+                                                   Foreground="#FF868686" FontStyle="Italic"
                                                    FontSize="11" VerticalAlignment="Center"
                                                    HorizontalAlignment="Center"/>
                                     </TabItem>
