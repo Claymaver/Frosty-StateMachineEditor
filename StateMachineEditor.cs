@@ -1163,7 +1163,7 @@ namespace StateMachineEditorPlugin
             {
                 var win = new Window
                 {
-                    Title = "New SeqFLOW Controller", Width = 380, Height = 320, SizeToContent = SizeToContent.Height,
+                    Title = "New SeqFLOW Controller", Width = 380, SizeToContent = SizeToContent.Height,
                     WindowStartupLocation = WindowStartupLocation.CenterOwner,
                     Background = BrushPanelBg,
                     BorderBrush = BrushBorder,
@@ -3481,14 +3481,12 @@ namespace StateMachineEditorPlugin
                 if (string.IsNullOrWhiteSpace(newVal) || newVal == node.Name) return;
                 try
                 {
-                    dynamic d = node.RawObject;
-                    d.__Id      = newVal;
+                    SetEbxName(node.RawObject, newVal);
                     node.Name   = newVal;
                     node.Parsed = NameParser.Parse(newVal);
+                    node.Category = DetermineCategory(newVal, node.Parsed);
                     AssetModified = true;
-                    // Refresh tree
                     PopulateTree();
-                    // Refresh node card in graph without full re-render
                     RefreshNodeVisual(node);
                     App.Logger.Log($"StateMachineEditor: renamed node to [{newVal}]");
                 }
@@ -3524,7 +3522,7 @@ namespace StateMachineEditorPlugin
                 AddEditableRow(op, "Name", subName, newVal =>
                 {
                     if (string.IsNullOrWhiteSpace(newVal)) return;
-                    try { dynamic d = subObj; d.__Id = newVal; AssetModified = true; }
+                    try { SetEbxName(subObj, newVal); AssetModified = true; }
                     catch { }
                 });
                 // All writable primitive properties
@@ -3833,6 +3831,28 @@ namespace StateMachineEditorPlugin
 
             if (count > 0)
             {
+                // Rename the subject object to match source
+                string srcSubName = GetRawName(src);
+                string oldSubName = GetRawName(dst);
+                if (!string.IsNullOrEmpty(srcSubName) && srcSubName != oldSubName)
+                {
+                    SetEbxName(dst, srcSubName);
+                    App.Logger.Log($"StateMachineEditor: renamed subject [{oldSubName}] → [{srcSubName}]");
+                }
+
+                // Also rename the parent node to match the source node
+                string srcNodeName = GetRawName(srcNode.RawObject);
+                string oldNodeName = GetRawName(dstNode.RawObject);
+                if (!string.IsNullOrEmpty(srcNodeName) && srcNodeName != oldNodeName)
+                {
+                    SetEbxName(dstNode.RawObject, srcNodeName);
+                    dstNode.Name   = srcNodeName;
+                    dstNode.Parsed = NameParser.Parse(srcNodeName);
+                    dstNode.Category = DetermineCategory(srcNodeName, dstNode.Parsed);
+                    RefreshNodeVisual(dstNode);
+                    App.Logger.Log($"StateMachineEditor: renamed node [{oldNodeName}] → [{srcNodeName}]");
+                }
+
                 AssetModified = true;
                 App.Logger.Log($"StateMachineEditor: copied {count} properties from [{NodeDisplayName(srcNode)}] to [{NodeDisplayName(dstNode)}]");
                 // Refresh inspector
@@ -4132,20 +4152,39 @@ namespace StateMachineEditorPlugin
                     var cstringType = nameProp.PropertyType;
                     if (cstringType.Name == "CString")
                     {
-                        // Use op_Implicit(string) → CString
-                        var implicitOp = cstringType.GetMethod("op_Implicit",
-                            System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public,
-                            null, new[] { typeof(string) }, null);
-                        if (implicitOp != null)
+                        // CString is a struct — try multiple approaches in order of reliability
+                        bool set = false;
+
+                        // 1. Try op_Implicit(string) → CString (most reliable for structs)
+                        if (!set)
                         {
-                            var cstr = implicitOp.Invoke(null, new object[] { name });
-                            nameProp.SetValue(obj, cstr);
+                            var implicitOp = cstringType.GetMethods(BindingFlags.Static | BindingFlags.Public)
+                                .FirstOrDefault(m => m.Name == "op_Implicit" && m.ReturnType == cstringType
+                                    && m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType == typeof(string));
+                            if (implicitOp != null)
+                            {
+                                nameProp.SetValue(obj, implicitOp.Invoke(null, new object[] { name }));
+                                set = true;
+                            }
                         }
-                        else
+
+                        // 2. Try constructor CString(string)
+                        if (!set)
                         {
-                            // Fallback: constructor
+                            var ctor = cstringType.GetConstructor(new[] { typeof(string) });
+                            if (ctor != null)
+                            {
+                                nameProp.SetValue(obj, ctor.Invoke(new object[] { name }));
+                                set = true;
+                            }
+                        }
+
+                        // 3. Try Activator with constructor
+                        if (!set)
+                        {
                             var inst = Activator.CreateInstance(cstringType, new object[] { name });
                             nameProp.SetValue(obj, inst);
+                            set = true;
                         }
                     }
                     else
