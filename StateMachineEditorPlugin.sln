@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36930.0 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StateMachineEditorPlugin", "StateMachineEditorPlugin.csproj", "{D0F87842-5667-60DE-072B-3BA50E25F7C0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Developer - Debug|x64 = Developer - Debug|x64
+		Release - Alpha|x64 = Release - Alpha|x64
+		Release - Beta|x64 = Release - Beta|x64
+		Release - Final|x64 = Release - Final|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D0F87842-5667-60DE-072B-3BA50E25F7C0}.Developer - Debug|x64.ActiveCfg = Developer - Debug|x64
+		{D0F87842-5667-60DE-072B-3BA50E25F7C0}.Developer - Debug|x64.Build.0 = Developer - Debug|x64
+		{D0F87842-5667-60DE-072B-3BA50E25F7C0}.Release - Alpha|x64.ActiveCfg = Release - Alpha|x64
+		{D0F87842-5667-60DE-072B-3BA50E25F7C0}.Release - Alpha|x64.Build.0 = Release - Alpha|x64
+		{D0F87842-5667-60DE-072B-3BA50E25F7C0}.Release - Beta|x64.ActiveCfg = Release - Beta|x64
+		{D0F87842-5667-60DE-072B-3BA50E25F7C0}.Release - Beta|x64.Build.0 = Release - Beta|x64
+		{D0F87842-5667-60DE-072B-3BA50E25F7C0}.Release - Final|x64.ActiveCfg = Release - Final|x64
+		{D0F87842-5667-60DE-072B-3BA50E25F7C0}.Release - Final|x64.Build.0 = Release - Final|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {847C7EEB-936A-4906-803D-A5874A31DAEC}
+	EndGlobalSection
+EndGlobal
