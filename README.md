@@ -1,9 +1,8 @@
 # Frosty State Machine Editor
 
-[![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.8-512BD4?logo=dotnet)](https://dotnet.microsoft.com/download/dotnet-framework/net48)
-[![Frosty Editor](https://img.shields.io/badge/Frosty_Editor-1.0.6.3-orange)](https://github.com/CadeEvs/FrostyToolsuite)
-[![Game](https://img.shields.io/badge/SWBF2-2017-red?logo=starwars&logoColor=white)](https://www.ea.com/games/starwars/battlefront/star-wars-battlefront-2)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+![FrostyEditor](https://img.shields.io/badge/Frosty%20Editor-1.0.6.3+-blue)
+![Game](https://img.shields.io/badge/Game-Star%20Wars%20Battlefront%20II%20(2017)-orange)
+![Status](https://img.shields.io/badge/Status-Beta-darkred)
 [![Wiki](https://img.shields.io/badge/Docs-Wiki-blue?logo=github)](../../wiki)
 
 A visual editor plugin for [Frosty Editor](https://github.com/CadeEvs/FrostyToolsuite) that lets you view and edit soldier state machines in Star Wars Battlefront II (2017).
