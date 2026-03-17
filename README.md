@@ -1,0 +1,28 @@
+# Frosty State Machine Editor
+
+[![.NET Framework](https://img.shields.io/badge/.NET_Framework-4.8-512BD4?logo=dotnet)](https://dotnet.microsoft.com/download/dotnet-framework/net48)
+[![Frosty Editor](https://img.shields.io/badge/Frosty_Editor-1.0.6.3-orange)](https://github.com/CadeEvs/FrostyToolsuite)
+[![Game](https://img.shields.io/badge/SWBF2-2017-red?logo=starwars&logoColor=white)](https://www.ea.com/games/starwars/battlefront/star-wars-battlefront-2)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Wiki](https://img.shields.io/badge/Docs-Wiki-blue?logo=github)](../../wiki)
+
+A visual editor plugin for [Frosty Editor](https://github.com/CadeEvs/FrostyToolsuite) that lets you view and edit soldier state machines in Star Wars Battlefront II (2017).
+
+## Features
+
+- **Tree Explorer** — Browse controllers grouped by character with search and sorting
+- **Graph View** — Visual flowchart with draggable nodes, bezier wires, and category-colored cards
+- **Property View** — Toggle to Frosty's standard EBX property grid for full raw access
+- **Chain Editing** — Add, remove, and rewire nodes in attack/ability chains
+- **SeqFLOW Creation** — Create new controllers for custom characters from templates
+- **Cross-Hero Copying** — Copy node configurations between characters
+
+## Installation
+
+1. Download the latest `.dll` from [Releases](../../releases)
+2. Drop it in your Frosty Editor `Plugins` folder
+3. Open any `CharacterStateOwnerData` asset (e.g. `DefaultSoldierStateMachine`)
+
+## Documentation
+
+See the [Wiki](../../wiki) for full documentation.
