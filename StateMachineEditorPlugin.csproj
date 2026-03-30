@@ -73,10 +73,6 @@
       <HintPath>lib\FrostyCore.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="FrostyEditor">
-      <HintPath>lib\FrostyEditor.exe</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="FrostyHash">
       <HintPath>lib\FrostyHash.dll</HintPath>
       <Private>false</Private>

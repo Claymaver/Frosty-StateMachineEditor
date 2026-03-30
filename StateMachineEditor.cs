@@ -14,6 +14,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
 namespace StateMachineEditorPlugin
@@ -646,6 +647,11 @@ namespace StateMachineEditorPlugin
                         SwitchToPropertyView();
                 };
             }
+
+            // Previews browser button
+            var previewsBtn = GetTemplateChild("PART_PreviewsBtn") as Button;
+            if (previewsBtn != null)
+                previewsBtn.Click += (s, e) => ShowAnimationBrowser();
 
             // Default to property view
             if (_propertyGrid != null && _graphView != null)
@@ -1489,6 +1495,320 @@ namespace StateMachineEditorPlugin
             win.Content = root;
             try { var owner = Window.GetWindow((DependencyObject)_canvas ?? _tree); if (owner != null) win.Owner = owner; } catch { }
             win.ShowDialog();
+        }
+
+        // ─── Animation Preview System ────────────────────────────────────────────
+
+        private string _previewsFolder;
+
+        private string GetPreviewsFolder()
+        {
+            if (_previewsFolder != null) return _previewsFolder;
+            try
+            {
+                string dllDir = System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                string candidate = System.IO.Path.Combine(dllDir, "StateMachineEditor", "Previews");
+                if (System.IO.Directory.Exists(candidate)) { _previewsFolder = candidate; return _previewsFolder; }
+                // Also check directly next to DLL
+                candidate = System.IO.Path.Combine(dllDir, "Previews");
+                if (System.IO.Directory.Exists(candidate)) { _previewsFolder = candidate; return _previewsFolder; }
+            }
+            catch { }
+            _previewsFolder = "";
+            return _previewsFolder;
+        }
+
+        /// <summary>
+        /// Tries to find a preview image for a node. Searches:
+        ///   Previews/{Character}/{Action}.gif/png/jpg
+        ///   Previews/{Character}/{Character}_{Action}.gif/png/jpg
+        /// </summary>
+        private string FindPreviewPath(StateNode node)
+        {
+            string folder = GetPreviewsFolder();
+            if (string.IsNullOrEmpty(folder) || node == null || !node.Parsed.IsValid) return null;
+
+            string character = node.Parsed.Character;
+            string action    = node.Parsed.ActionPath;
+            if (string.IsNullOrEmpty(character) || string.IsNullOrEmpty(action)) return null;
+
+            string charFolder = System.IO.Path.Combine(folder, character);
+            if (!System.IO.Directory.Exists(charFolder)) return null;
+
+            // Normalize action path: "Dodge.Back.01" → "Dodge_Back_01" for filename matching
+            string actionFile = action.Replace(".", "_");
+
+            foreach (var ext in new[] { ".gif", ".png", ".jpg", ".jpeg", ".webp" })
+            {
+                // Try: {Action}.ext
+                string path = System.IO.Path.Combine(charFolder, actionFile + ext);
+                if (System.IO.File.Exists(path)) return path;
+
+                // Try: {Character}_{Action}.ext
+                path = System.IO.Path.Combine(charFolder, $"{character}_{actionFile}{ext}");
+                if (System.IO.File.Exists(path)) return path;
+            }
+            return null;
+        }
+
+        private BitmapImage LoadPreviewImage(string path)
+        {
+            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(path)) return null;
+            try
+            {
+                var bmp = new BitmapImage();
+                bmp.BeginInit();
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.UriSource = new Uri(path, UriKind.Absolute);
+                bmp.EndInit();
+                bmp.Freeze();
+                return bmp;
+            }
+            catch { return null; }
+        }
+
+        /// <summary>
+        /// For GIF support, uses WPF's MediaElement for animated playback.
+        /// Returns an Image for static files, or a MediaElement for GIFs.
+        /// </summary>
+        private FrameworkElement CreatePreviewElement(string path, double maxWidth = 160, double maxHeight = 120)
+        {
+            if (string.IsNullOrEmpty(path)) return null;
+
+            if (path.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
+            {
+                // WPF doesn't natively animate GIFs via Image — use MediaElement
+                var media = new MediaElement
+                {
+                    Source = new Uri(path, UriKind.Absolute),
+                    LoadedBehavior = MediaState.Play,
+                    UnloadedBehavior = MediaState.Close,
+                    MaxWidth = maxWidth,
+                    MaxHeight = maxHeight,
+                    Stretch = Stretch.Uniform,
+                    IsMuted = true
+                };
+                // Loop the GIF
+                media.MediaEnded += (s, e) => { media.Position = TimeSpan.Zero; media.Play(); };
+                return media;
+            }
+
+            var img = LoadPreviewImage(path);
+            if (img == null) return null;
+            return new Image
+            {
+                Source = img,
+                MaxWidth = maxWidth,
+                MaxHeight = maxHeight,
+                Stretch = Stretch.Uniform,
+                Margin = new Thickness(0, 4, 0, 4)
+            };
+        }
+
+        private void ShowAnimationBrowser()
+        {
+            string folder = GetPreviewsFolder();
+
+            var win = new Window
+            {
+                Title = "Animation Previews",
+                Width = 720, Height = 560,
+                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                Background = BrushWindowBg,
+                BorderBrush = BrushBorder,
+                BorderThickness = new Thickness(1),
+                ResizeMode = ResizeMode.CanResize,
+                ShowInTaskbar = false
+            };
+
+            var root = new Grid();
+            root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(180) });
+            root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(4) });
+            root.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            // ── Left: character list ──────────────────────────────────────
+            var leftPanel = new Grid();
+            leftPanel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            leftPanel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+            var searchBox = new TextBox
+            {
+                Background = BrushInputBg,
+                Foreground = BrushText,
+                CaretBrush = Brushes.White,
+                BorderBrush = BrushBorder,
+                BorderThickness = new Thickness(0, 0, 0, 1),
+                Padding = new Thickness(8, 6, 8, 6),
+                FontSize = 11
+            };
+            searchBox.GotFocus += (s, e) => { if (searchBox.Tag as string == "ph") { searchBox.Text = ""; searchBox.Foreground = BrushText; searchBox.Tag = null; } };
+            searchBox.LostFocus += (s, e) => { if (string.IsNullOrEmpty(searchBox.Text)) { searchBox.Text = "Search..."; searchBox.Foreground = BrushTextDim; searchBox.Tag = "ph"; } };
+            searchBox.Text = "Search..."; searchBox.Foreground = BrushTextDim; searchBox.Tag = "ph";
+            Grid.SetRow(searchBox, 0);
+            leftPanel.Children.Add(searchBox);
+
+            var charList = new ListBox
+            {
+                Background = BrushPanelBg,
+                BorderThickness = new Thickness(0),
+                Foreground = BrushText,
+                FontSize = 11
+            };
+            Grid.SetRow(charList, 1);
+            leftPanel.Children.Add(charList);
+            Grid.SetColumn(leftPanel, 0);
+            root.Children.Add(leftPanel);
+
+            // Splitter
+            var splitter = new GridSplitter
+            {
+                Width = 4,
+                Background = BrushBorder,
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+            Grid.SetColumn(splitter, 1);
+            root.Children.Add(splitter);
+
+            // ── Right: preview grid ──────────────────────────────────────
+            var rightPanel = new Grid();
+            rightPanel.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+            rightPanel.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+
+            var headerText = new TextBlock
+            {
+                Text = "Select a character",
+                Foreground = BrushTextDim,
+                FontSize = 11,
+                Margin = new Thickness(8, 6, 8, 6)
+            };
+            Grid.SetRow(headerText, 0);
+            rightPanel.Children.Add(headerText);
+
+            var previewScroll = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled
+            };
+            var previewWrap = new WrapPanel
+            {
+                Orientation = Orientation.Horizontal,
+                Margin = new Thickness(4)
+            };
+            previewScroll.Content = previewWrap;
+            Grid.SetRow(previewScroll, 1);
+            rightPanel.Children.Add(previewScroll);
+            Grid.SetColumn(rightPanel, 2);
+            root.Children.Add(rightPanel);
+
+            // ── Populate ─────────────────────────────────────────────────
+            if (string.IsNullOrEmpty(folder) || !System.IO.Directory.Exists(folder))
+            {
+                headerText.Text = "No Previews folder found.\n\nPlace preview images in:\n  <Plugins>/StateMachineEditor/Previews/<Character>/\n  or <Plugins>/Previews/<Character>/";
+                headerText.TextWrapping = TextWrapping.Wrap;
+                headerText.FontSize = 12;
+                headerText.Margin = new Thickness(16);
+            }
+            else
+            {
+                var charDirs = System.IO.Directory.GetDirectories(folder)
+                    .Select(d => new System.IO.DirectoryInfo(d))
+                    .OrderBy(d => d.Name, StringComparer.OrdinalIgnoreCase)
+                    .ToArray();
+
+                foreach (var dir in charDirs)
+                {
+                    var item = new ListBoxItem
+                    {
+                        Content = dir.Name,
+                        Tag = dir.FullName,
+                        Padding = new Thickness(8, 4, 8, 4),
+                        Background = Brushes.Transparent,
+                        Foreground = BrushText
+                    };
+                    charList.Items.Add(item);
+                }
+
+                charList.SelectionChanged += (s, e) =>
+                {
+                    if (!(charList.SelectedItem is ListBoxItem sel) || !(sel.Tag is string dirPath)) return;
+                    previewWrap.Children.Clear();
+                    headerText.Text = sel.Content.ToString();
+                    headerText.Foreground = BrushText;
+                    headerText.FontWeight = FontWeights.SemiBold;
+
+                    var files = System.IO.Directory.GetFiles(dirPath)
+                        .Where(f =>
+                        {
+                            string ext = System.IO.Path.GetExtension(f).ToLower();
+                            return ext == ".gif" || ext == ".png" || ext == ".jpg" || ext == ".jpeg" || ext == ".webp";
+                        })
+                        .OrderBy(f => System.IO.Path.GetFileNameWithoutExtension(f), StringComparer.OrdinalIgnoreCase)
+                        .ToArray();
+
+                    if (files.Length == 0)
+                    {
+                        previewWrap.Children.Add(new TextBlock
+                        {
+                            Text = "No preview images in this folder.",
+                            Foreground = BrushTextDim,
+                            FontStyle = FontStyles.Italic,
+                            Margin = new Thickness(8)
+                        });
+                        return;
+                    }
+
+                    foreach (var file in files)
+                    {
+                        var card = new Border
+                        {
+                            Background = BrushPanelBg,
+                            BorderBrush = BrushBorder,
+                            BorderThickness = new Thickness(1),
+                            CornerRadius = new CornerRadius(3),
+                            Margin = new Thickness(4),
+                            Padding = new Thickness(4),
+                            Width = 160
+                        };
+
+                        var stack = new StackPanel();
+                        var preview = CreatePreviewElement(file, 150, 110);
+                        if (preview != null)
+                            stack.Children.Add(preview);
+                        else
+                            stack.Children.Add(new Border { Height = 80, Background = BrushInputBg });
+
+                        stack.Children.Add(new TextBlock
+                        {
+                            Text = System.IO.Path.GetFileNameWithoutExtension(file),
+                            Foreground = BrushText,
+                            FontSize = 10,
+                            TextTrimming = TextTrimming.CharacterEllipsis,
+                            HorizontalAlignment = HorizontalAlignment.Center,
+                            Margin = new Thickness(0, 4, 0, 0)
+                        });
+                        card.Child = stack;
+                        previewWrap.Children.Add(card);
+                    }
+                };
+
+                // Search filter for character list
+                searchBox.TextChanged += (s, e) =>
+                {
+                    if (searchBox.Tag as string == "ph") return;
+                    string filter = searchBox.Text.Trim();
+                    foreach (ListBoxItem item in charList.Items)
+                    {
+                        item.Visibility = string.IsNullOrEmpty(filter) ||
+                            item.Content.ToString().IndexOf(filter, StringComparison.OrdinalIgnoreCase) >= 0
+                            ? Visibility.Visible
+                            : Visibility.Collapsed;
+                    }
+                };
+            }
+
+            win.Content = root;
+            try { var owner = Window.GetWindow((DependencyObject)_canvas ?? _tree); if (owner != null) win.Owner = owner; } catch { }
+            win.Show(); // Non-modal so users can reference while working
         }
 
         /// <summary>
@@ -3499,6 +3819,21 @@ namespace StateMachineEditorPlugin
             AddEditRow(op, "Category",  node.Category ?? "");
             AddEditRow(op, "GUID", TryGetGuid(node.RawObject));
 
+            // Preview thumbnail (if available)
+            string previewPath = FindPreviewPath(node);
+            if (previewPath != null)
+            {
+                op.Children.Add(new Border { Height = 1, Background = BrushBorder, Margin = new Thickness(0, 6, 0, 4) });
+                op.Children.Add(new TextBlock { Text = "PREVIEW", Foreground = BrushTextDim, FontSize = 9, FontWeight = FontWeights.SemiBold, Margin = new Thickness(4, 0, 0, 2) });
+                var previewEl = CreatePreviewElement(previewPath, 200, 140);
+                if (previewEl != null)
+                {
+                    previewEl.HorizontalAlignment = HorizontalAlignment.Left;
+                    previewEl.Margin = new Thickness(4, 0, 0, 0);
+                    op.Children.Add(previewEl);
+                }
+            }
+
             // ── Subject controllers (clip, blend, etc.) ──────────────────
             var subjects = GetNodeSubjects(node);
             for (int si = 0; si < subjects.Count; si++)
@@ -3810,7 +4145,8 @@ namespace StateMachineEditorPlugin
             if (srcType != dstType) return;
 
             int count = 0;
-            var skip = new HashSet<string> { "__Id", "__InstanceGuid", "__Type", "Subjects" };
+            // AssetIndex must never be overwritten — it's the object's position in AllControllerDatas
+            var skip = new HashSet<string> { "__Id", "__InstanceGuid", "__Type", "Subjects", "AssetIndex" };
             foreach (var prop in srcType.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 if (skip.Contains(prop.Name) || !prop.CanRead || !prop.CanWrite) continue;
@@ -3819,10 +4155,52 @@ namespace StateMachineEditorPlugin
                     var val = prop.GetValue(src);
                     if (val == null) continue;
                     var t = val.GetType();
-                    // Only copy value types — skip PointerRefs and collections
+
+                    // Copy value types (primitives, enums, strings)
                     if (t.IsPrimitive || t.IsEnum || val is string)
                     {
+                        var oldVal = prop.GetValue(dst);
                         prop.SetValue(dst, val);
+                        App.Logger.Log($"StateMachineEditor:   copied prop {prop.Name}: [{oldVal}] → [{val}]");
+                        count++;
+                    }
+                    // Deep-copy inline struct lists (e.g. ClipInfos) — these contain
+                    // the actual animation references and timing data
+                    else if (val is System.Collections.IList srcList && prop.CanWrite)
+                    {
+                        var dstList = prop.GetValue(dst) as System.Collections.IList;
+                        if (dstList == null) continue;
+
+                        // Check if list items are inline structs (not PointerRefs)
+                        // PointerRef items have Internal/External fields — skip those
+                        bool isInlineList = srcList.Count > 0 &&
+                            srcList[0] != null &&
+                            !srcList[0].GetType().Name.Contains("PointerRef") &&
+                            srcList[0].GetType().GetProperty("Internal") == null;
+
+                        if (isInlineList)
+                        {
+                            int oldCount = dstList.Count;
+                            dstList.Clear();
+                            foreach (var item in srcList)
+                                dstList.Add(item);
+                            App.Logger.Log($"StateMachineEditor:   copied list {prop.Name}: {oldCount} items → {srcList.Count} items");
+                            count++;
+                        }
+                    }
+                    // Copy CString and other value-like types via reflection
+                    else if (t.Name == "CString")
+                    {
+                        prop.SetValue(dst, val);
+                        App.Logger.Log($"StateMachineEditor:   copied prop {prop.Name} (CString)");
+                        count++;
+                    }
+                    // Copy PointerRef properties (e.g. TransformChannelController, ChannelController)
+                    // These must be copied alongside ClipInfos to keep animation data consistent
+                    else if (t.Name == "PointerRef")
+                    {
+                        prop.SetValue(dst, val);
+                        App.Logger.Log($"StateMachineEditor:   copied ref {prop.Name}");
                         count++;
                     }
                 }
@@ -3840,18 +4218,9 @@ namespace StateMachineEditorPlugin
                     App.Logger.Log($"StateMachineEditor: renamed subject [{oldSubName}] → [{srcSubName}]");
                 }
 
-                // Also rename the parent node to match the source node
-                string srcNodeName = GetRawName(srcNode.RawObject);
-                string oldNodeName = GetRawName(dstNode.RawObject);
-                if (!string.IsNullOrEmpty(srcNodeName) && srcNodeName != oldNodeName)
-                {
-                    SetEbxName(dstNode.RawObject, srcNodeName);
-                    dstNode.Name   = srcNodeName;
-                    dstNode.Parsed = NameParser.Parse(srcNodeName);
-                    dstNode.Category = DetermineCategory(srcNodeName, dstNode.Parsed);
-                    RefreshNodeVisual(dstNode);
-                    App.Logger.Log($"StateMachineEditor: renamed node [{oldNodeName}] → [{srcNodeName}]");
-                }
+                // Note: do NOT rename the parent node — its name is the identity within
+                // the SeqFLOW chain and must match the character (e.g. Vader_Strike_3).
+                // Renaming it to the source character's name breaks the game's lookup.
 
                 AssetModified = true;
                 App.Logger.Log($"StateMachineEditor: copied {count} properties from [{NodeDisplayName(srcNode)}] to [{NodeDisplayName(dstNode)}]");

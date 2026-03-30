@@ -144,6 +144,12 @@
                                                 Background="#FF454545" Foreground="#FFF8F8F8"
                                                 BorderBrush="#FF3F3F3F" BorderThickness="1"
                                                 ToolTip="Switch between Graph and EBX Property views"/>
+                                        <Button x:Name="PART_PreviewsBtn" DockPanel.Dock="Right"
+                                                Content="Previews" Width="64" Height="20"
+                                                Margin="0,0,0,0" FontSize="10"
+                                                Background="#FF454545" Foreground="#FFF8F8F8"
+                                                BorderBrush="#FF3F3F3F" BorderThickness="1"
+                                                ToolTip="Open Animation Preview Browser"/>
                                         <TextBlock Text="EXPLORER" Foreground="#FF868686"
                                                    FontSize="10" FontWeight="SemiBold"
                                                    VerticalAlignment="Center" Margin="10,0,0,0"/>
