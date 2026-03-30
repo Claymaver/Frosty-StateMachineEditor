@@ -14,6 +14,6 @@ using System.Windows;
 
 [assembly: PluginDisplayName("State Machine Editor")]
 [assembly: PluginAuthor("Claymaver")]
-[assembly: PluginVersion("1.0.0.1")]
+[assembly: PluginVersion("1.0.0.2")]
 
 [assembly: RegisterAssetDefinition("CharacterStateOwnerData", typeof(StateMachineEditorPlugin.StateMachineAssetDefinition))]
